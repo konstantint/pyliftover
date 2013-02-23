@@ -4,7 +4,7 @@ Pure-python implementation of UCSC ``liftOver`` genome coordinate conversion
 
 PyLiftover is a library for quick and easy conversion of genomic (point) coordinates between different assemblies.
 
-It uses the same logic and coordinate conversion mappings as the UCSC `liftOver tool<http://genome.ucsc.edu/cgi-bin/hgLiftOver>`_.
+It uses the same logic and coordinate conversion mappings as the UCSC `liftOver tool <http://genome.ucsc.edu/cgi-bin/hgLiftOver>`_.
 
 As of current version (0.1), PyLiftover only does conversion of point coordinates, that is, 
 unlike ``liftOver``, it does not convert ranges, nor does it provide any special facilities to work with BED files.
@@ -24,7 +24,7 @@ The primary usage example, supported by the library is the following::
     lo = LiftOver('hg17', 'hg18')
     lo.convert_coordinate('chr1', 1000000)
 
-The first line will automatically download the hg17-to-hg18 coordinate conversion `chain file<http://genome.ucsc.edu/goldenPath/help/chain.html>` from UCSC,
+The first line will automatically download the hg17-to-hg18 coordinate conversion `chain file <http://genome.ucsc.edu/goldenPath/help/chain.html>`_ from UCSC,
 unless it is already cached or available in the current directory. Alternatively, you may provide your own chain file::
 
     lo = LiftOver('hg17ToHg18.over.chain.gz')
