@@ -8,6 +8,7 @@ It uses the same logic and coordinate conversion mappings as the UCSC `liftOver 
 
 As of current version (0.1), PyLiftover only does conversion of point coordinates, that is, 
 unlike ``liftOver``, it does not convert ranges, nor does it provide any special facilities to work with BED files.
+For single-point coordinates it produces exactly the same output as ``liftOver`` (verified with at least the ``hg17ToHg18.over.chain.gz`` file for now).
 
 Installation
 ------------
@@ -33,11 +34,15 @@ unless it is already cached or available in the current directory. Alternatively
 The result of ``lo.convert_coordinate`` call is either ``None`` (if the source chromosome name is unrecognized) or a list of target positions in the
 new assembly. The list may be empty (locus is deleted in the new assembly), have a single element (locus matched uniquely), or, in principle, 
 have multiple elements (although this is probably a rare occasion for most default intra-species genomic conversions).
+Note that coordinates in the tool are 0-based. That is, a position that you would refer to in the genome browser by ``chr1:10`` 
+corresponds to coordinate ``9`` in PyLiftover's terms.
 
 Although you may try to apply the tool with arbitrary chain files, like the original ``liftOver`` tool, it makes most sense for conversion of 
 coordinates between different assemblies of the same species.
 
+
 See also
 --------
 
+* Blog post: http://fouryears.eu/2013/02/25/the-curse-of-genomic-coordinates/
 * Report issues and submit fixes at Github: https://github.com/konstantint/pyliftover
