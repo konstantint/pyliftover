@@ -103,7 +103,11 @@ class LiftOverChainFile:
         Loads all LiftOverChain objects from a file into an array. Returns the result.
         '''
         chains = []
-        for line in f:
+        while True:
+            line = f.readline()
+            if not line:
+                break
+
             if line.startswith('#') or line.startswith('\n') or line.startswith('\r'):
                 continue
             if line.startswith('chain'):
@@ -206,5 +210,4 @@ class LiftOverChain:
         size = int(fields[0])
         self.blocks.append((sfrom, sfrom+size, tfrom, tfrom+size))
         if (sfrom + size) != self.source_end  or (tfrom + size) != self.target_end:
-            raise Exception("Alignment blocks do not match specified block sizes. (%s)" % header)        
-        
+            raise Exception("Alignment blocks do not match specified block sizes. (%s)" % header)
