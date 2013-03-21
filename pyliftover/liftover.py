@@ -28,51 +28,21 @@ class LiftOver:
 
         Test providing filename:
         >>> lo = LiftOver('tests/data/mds42.to.mg1655.liftOver')
-        >>> all_res = lo.convert_coordinate('AP012306.1', 16000)
-        >>> len(all_res)
-        1
-        >>> res = all_res[0]
-        >>> [(res[0], res[1], res[2], long(res[3]))]
-        [('Chromosome', 21175, '+', 378954552L)]
-
+        >>> lo.convert_coordinate('AP012306.1', 16000) #doctest: +ELLIPSIS (because on 32-bit systems there's an L qualifier after the number and on 64-bit ones there's nothing.
+        [('Chromosome', 21175, '+', 378954552...)]
 
         Test providing from_db and to_db:
         >>> lo = LiftOver('hg17', 'hg18')
-        >>> all_res = lo.convert_coordinate('chr1', 1000000)
-        >>> len(all_res)
-        1
-        >>> res = all_res[0]
-        >>> [(res[0], res[1], res[2], long(res[3]))]
-        [('chr1', 949796, '+', 21057807908L)]
-
-        >>> all_res = lo.convert_coordinate('chr1', 0)
-        >>> len(all_res)
-        1
-        >>> res = all_res[0]
-        >>> [(res[0], res[1], res[2], long(res[3]))]
-        [('chr1', 0, '+', 21057807908L)]
-
-        >>> all_res = lo.convert_coordinate('chr1', 0, '-')
-        >>> len(all_res)
-        1
-        >>> res = all_res[0]
-        >>> [(res[0], res[1], res[2], long(res[3]))]
-        [('chr1', 0, '-', 21057807908L)]
-
-        >>> all_res = lo.convert_coordinate('chr1', 103786442)
-        >>> len(all_res)
-        1
-        >>> res = all_res[0]
-        >>> [(res[0], res[1], res[2], long(res[3]))]
-        [('chr20', 20668001, '-', 14732L)]
-
-        >>> all_res = lo.convert_coordinate('chr1', 103786443, '-')
-        >>> len(all_res)
-        1
-        >>> res = all_res[0]
-        >>> [(res[0], res[1], res[2], long(res[3]))]
-        [('chr20', 20668000, '+', 14732L)]
-
+        >>> lo.convert_coordinate('chr1', 1000000)
+        [('chr1', 949796, '+', 21057807908...)]
+        >>> lo.convert_coordinate('chr1', 0)
+        [('chr1', 0, '+', 21057807908...)]
+        >>> lo.convert_coordinate('chr1', 0, '-')
+        [('chr1', 0, '-', 21057807908...)]
+        >>> lo.convert_coordinate('chr1', 103786442)
+        [('chr20', 20668001, '-', 14732...)]
+        >>> lo.convert_coordinate('chr1', 103786443, '-')
+        [('chr20', 20668000, '+', 14732...)]
         >>> lo.convert_coordinate('chr1', 103786441, '+')
         []
         '''

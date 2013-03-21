@@ -8,8 +8,9 @@ http://kt.era.ee/
 Licensed under MIT license.
 '''
 
-from pyliftover.chainfile import LiftOverChain, LiftOverChainFile, open_liftover_chain_file
 from cStringIO import StringIO
+import os
+from pyliftover.chainfile import LiftOverChain, LiftOverChainFile, open_liftover_chain_file
 
 # Examples from spec page: http://genome.ucsc.edu/goldenPath/help/chain.html
 example_1 = '''
@@ -90,3 +91,9 @@ def test_liftover_chain_file():
     f.close()
     index = LiftOverChainFile._index_chains(chains)
     assert len(index) >= 22
+
+def test_issue_1():
+    testdata_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'mds42.to.mg1655.liftOver')
+    with open(testdata_file) as f:
+        locf = LiftOverChainFile(f)
+        assert len(locf.chains) == 1
