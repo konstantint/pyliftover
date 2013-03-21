@@ -1,3 +1,8 @@
+Version 0.2
+-----------
+
+    - Fixed a bug (issue #1)
+    
 Version 0.1
 -----------
 
