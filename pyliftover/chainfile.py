@@ -12,10 +12,15 @@ import os.path
 import gzip
 import urllib
 import shutil
+import sys
 
-from intervaltree import IntervalTree
+from .intervaltree import IntervalTree
 
-class ErrorAwareURLOpener(urllib.FancyURLopener):
+if sys.version_info.major > 2:
+    import urllib.request
+FancyURLopener = urllib.FancyURLopener if sys.version_info.major == 2 else urllib.request.FancyURLopener
+
+class ErrorAwareURLOpener(FancyURLopener):
   def http_error_default(self, url, fp, errcode, errmsg, headers):
     raise Exception("404")
 _urlopener = ErrorAwareURLOpener()
@@ -48,13 +53,13 @@ def open_liftover_chain_file(from_db, to_db, search_dir='.', cache_dir=os.path.e
         FILE_GZ = os.path.join(search_dir, FILE_NAME_GZ)
         FILE = os.path.join(search_dir, FILE_NAME)
         if os.path.isfile(FILE_GZ):
-            return gzip.open(FILE_GZ)
+            return gzip.open(FILE_GZ, 'rb')
         elif os.path.isfile(FILE):
-            return open(FILE, 'r')
+            return open(FILE, 'rb')
     if cache_dir is not None:
         FILE_GZ = os.path.join(cache_dir, FILE_NAME_GZ)
         if os.path.isfile(FILE_GZ):
-            return gzip.open(FILE_GZ)
+            return gzip.open(FILE_GZ, 'rb')
     if use_web:
         # Download file from the web.
         try:
@@ -70,13 +75,13 @@ def open_liftover_chain_file(from_db, to_db, search_dir='.', cache_dir=os.path.e
                     os.mkdir(cache_dir)
                 shutil.move(filename, FILE_GZ)
                 # Move successful, open from cache
-                return gzip.open(FILE_GZ)
+                return gzip.open(FILE_GZ, 'rb')
             except:
                 # Move failed, open file from temp location
-                return gzip.open(filename)
+                return gzip.open(filename, 'rb')
         else:
             # Open from temp location
-            return gzip.open(filename)
+            return gzip.open(filename, 'rb')
     # If we didn't quit before this place, all failed.
     return None
 
@@ -107,10 +112,9 @@ class LiftOverChainFile:
             line = f.readline()
             if not line:
                 break
-
-            if line.startswith('#') or line.startswith('\n') or line.startswith('\r'):
+            if line.startswith(b'#') or line.startswith(b'\n') or line.startswith(b'\r'):
                 continue
-            if line.startswith('chain'):
+            if line.startswith(b'chain'):
                 # Read chain
                 chains.append(LiftOverChain(line, f))
                 continue
@@ -156,6 +160,11 @@ class LiftOverChainFile:
         
         If chromosome is not found in the index, None is returned.
         '''
+        # A somewhat-ugly hack to allow both 'bytes' and 'str' objects to be used as
+        # chromosome names in Python 3. As we store chromosome names as strings,
+        # we'll transparently translate the query to a string too.
+        if type(chromosome).__name__ == 'bytes':
+            chromosome = chromosome.decode('ascii')
         if chromosome not in self.chain_index:
             return None
         else:
@@ -174,6 +183,8 @@ class LiftOverChain:
         Reads the chain from a stream given the first line and a file opened at all remaining lines.
         On error throws an exception.
         '''
+        if sys.version_info.major > 2:
+            header = header.decode('ascii') # In Python 2, work with usual strings.
         fields = header.split()
         if fields[0] != 'chain' and len(fields) not in [12, 13]:
             raise Exception("Invalid chain format. (%s)" % header)
@@ -193,12 +204,12 @@ class LiftOverChain:
             raise Exception("Target strand must be - or +. (%s)" % header)
         self.target_start = int(fields[10])
         self.target_end = int(fields[11])
-        self.id = None if len(fields) == 12 else fields[12]
+        self.id = None if len(fields) == 12 else fields[12].strip()
         
         # Now read the alignment chain from the file and store it as a list (source_from, source_to) -> (target_from, target_to)
         sfrom, tfrom = self.source_start, self.target_start
         self.blocks = []
-        fields = f.readline().split()
+        fields = f.readline().decode('ascii').split()
         while len(fields) == 3:
             size, sgap, tgap = int(fields[0]), int(fields[1]), int(fields[2])
             self.blocks.append((sfrom, sfrom+size, tfrom, tfrom+size))

@@ -22,10 +22,11 @@ class PyTest(TestCommand):
         self.test_suite = True
 
     def run_tests(self):
+        import sys
         import pytest  # import here, cause outside the eggs aren't loaded
-        pytest.main(self.test_args)
+        sys.exit(pytest.main(self.test_args))
 
-version = '0.2'
+version = '0.3'
 
 setup(name='pyliftover',
       version=version,
@@ -37,6 +38,7 @@ setup(name='pyliftover',
           'License :: OSI Approved :: MIT License',
           'Operating System :: OS Independent',
           'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 3',
           'Topic :: Scientific/Engineering :: Bio-Informatics'
       ],
       platforms=['Platform Independent'],

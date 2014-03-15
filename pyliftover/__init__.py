@@ -30,4 +30,4 @@ Although you may try to apply the tool with arbitrary chain files, like the orig
 coordinates between different assemblies of the same species.
 '''
 
-from liftover import LiftOver
+from .liftover import LiftOver

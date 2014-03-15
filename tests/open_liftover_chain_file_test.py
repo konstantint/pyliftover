@@ -55,7 +55,7 @@ def test_open_liftover_chain_file():
     assert f is not None
     assert not os.path.exists(cache_dir)
     ln = f.readline()
-    assert ln.startswith('##matrix')
+    assert ln.startswith(b'##matrix')
     f.close()
     os.unlink(f.name)
     
@@ -69,14 +69,14 @@ def test_open_liftover_chain_file():
     assert f is not None
     assert os.path.exists(cache_dir)
     ln = f.readline()
-    assert ln.startswith('##matrix')
+    assert ln.startswith(b'##matrix')
     f.close()
 
     # No web, file in cache, nonexistent search dir, must exist
     f = open_liftover_chain_file(from_db, to_db, search_dir=search_dir, cache_dir=cache_dir, use_web=False, write_cache=True)
     assert f is not None
     ln = f.readline()
-    assert ln.startswith('##matrix')
+    assert ln.startswith(b'##matrix')
     f.close()
     
     # No web, no file in cache, nonexistent db
@@ -87,21 +87,21 @@ def test_open_liftover_chain_file():
     # File both in cache and search_dir. Assert search_dir is used and uncompressed file is preferred
     filename = '%sTo%s.over.chain' % (from_db, to_db[0].upper() + to_db[1:])
     filename = os.path.join(search_dir, filename)
-    fout = open(filename, 'w')
-    fout.write('test-test')
+    fout = open(filename, 'wb')
+    fout.write(b'test-test')
     fout.close()
     f = open_liftover_chain_file(from_db, to_db, search_dir=search_dir, cache_dir=cache_dir, use_web=True, write_cache=True)
     assert f is not None
-    assert f.readline() == 'test-test'
+    assert f.readline() == b'test-test'
     f.close()
     
     # gzipped file is preferred
     fout = gzip.open(filename + '.gz', 'w')
-    fout.write('test-test-gzip')
+    fout.write(b'test-test-gzip')
     fout.close()
     f = open_liftover_chain_file(from_db, to_db, search_dir=search_dir, cache_dir=cache_dir, use_web=True, write_cache=True)
     assert f is not None
-    assert f.readline() == 'test-test-gzip'
+    assert f.readline() == b'test-test-gzip'
     f.close()
     os.unlink(filename)
     os.unlink(filename + '.gz')

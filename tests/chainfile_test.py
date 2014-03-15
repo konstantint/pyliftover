@@ -7,13 +7,17 @@ http://kt.era.ee/
 
 Licensed under MIT license.
 '''
-
-from cStringIO import StringIO
 import os
+import sys
+if sys.version_info.major == 2:
+    from cStringIO import StringIO
+else:
+    from io import BytesIO as StringIO
+
 from pyliftover.chainfile import LiftOverChain, LiftOverChainFile, open_liftover_chain_file
 
 # Examples from spec page: http://genome.ucsc.edu/goldenPath/help/chain.html
-example_1 = '''
+example_1 = b'''
 chain 4900 chrY 58368225 + 25985403 25985638 chr5 151006098 - 43257292 43257528 1
 9       1       0
 10      0       5
@@ -26,7 +30,7 @@ chain 4900 chrY 58368225 + 25985403 25985638 chr5 151006098 - 43257292 43257528 
 48
 '''
 
-example_2 = '''
+example_2 = b'''
 chain 4900 chrY 58368225 + 25985406 25985566 chr5 151006098 - 43549808 43549970 2
   16      0       2
   60      4       0
@@ -94,6 +98,6 @@ def test_liftover_chain_file():
 
 def test_issue_1():
     testdata_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'mds42.to.mg1655.liftOver')
-    with open(testdata_file) as f:
+    with open(testdata_file, 'rb') as f:
         locf = LiftOverChainFile(f)
         assert len(locf.chains) == 1

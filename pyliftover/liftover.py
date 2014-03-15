@@ -10,7 +10,7 @@ Licensed under MIT license.
 
 import os.path
 import gzip
-from chainfile import open_liftover_chain_file, LiftOverChainFile
+from .chainfile import open_liftover_chain_file, LiftOverChainFile
 
 class LiftOver:
     def __init__(self, from_db, to_db=None, search_dir='.', cache_dir=os.path.expanduser("~/.pyliftover"), use_web=True, write_cache=True, use_gzip=None):
@@ -51,9 +51,9 @@ class LiftOver:
             if isinstance(from_db, str):
                 do_gzip = use_gzip if use_gzip is not None else from_db.lower().endswith('.gz')
                 if do_gzip:
-                    f = gzip.open(from_db)
+                    f = gzip.open(from_db, 'rb')
                 else:
-                    f = open(from_db)
+                    f = open(from_db, 'rb')
             else:
                 f = from_db
         else:
