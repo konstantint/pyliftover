@@ -30,11 +30,24 @@ def test_liftover():
     lo = LiftOver(os.path.join(DATA_DIR, 'hg17ToHg18.over.chain.gz'))
     testdata_file = os.path.join(DATA_DIR, 'hg17ToHg18.testpoints.txt.gz')
     test_counter = 0
-    with gzip.open(testdata_file) as f:
-        for ln in f:
-            ln = ln.decode('ascii')
-            s_chr, s_pos, t_chr, t_pos = ln.split('\t')
-            result = lo.convert_coordinate(s_chr, int(s_pos))   
+    f = gzip.open(testdata_file)    # no "with" here because we want to support Python 2.6
+    for ln in f:
+        ln = ln.decode('ascii')
+        s_chr, s_pos, t_chr, t_pos = ln.split('\t')
+        result = lo.convert_coordinate(s_chr, int(s_pos))   
+        if t_chr == '-':
+            assert len(result) == 0
+        else:
+            assert len(result) == 1
+            res_chr = result[0][0]
+            res_pos = result[0][1]
+            assert res_chr == t_chr
+            assert res_pos == int(t_pos)
+        
+        # Check that we can provide chromosome as a bytes object and 
+        # everything will work still
+        if sys.version_info >= (3, 0):
+            result = lo.convert_coordinate(s_chr.encode('ascii'), int(s_pos))
             if t_chr == '-':
                 assert len(result) == 0
             else:
@@ -43,21 +56,8 @@ def test_liftover():
                 res_pos = result[0][1]
                 assert res_chr == t_chr
                 assert res_pos == int(t_pos)
-            
-            # Check that we can provide chromosome as a bytes object and 
-            # everything will work still
-            if sys.version_info.major > 2:
-                result = lo.convert_coordinate(s_chr.encode('ascii'), int(s_pos))
-                if t_chr == '-':
-                    assert len(result) == 0
-                else:
-                    assert len(result) == 1
-                    res_chr = result[0][0]
-                    res_pos = result[0][1]
-                    assert res_chr == t_chr
-                    assert res_pos == int(t_pos)
-                     
-            test_counter += 1
+                 
+        test_counter += 1
     assert test_counter == 10000
 
 def test_liftover_2():

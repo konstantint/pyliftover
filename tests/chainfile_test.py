@@ -9,7 +9,7 @@ Licensed under MIT license.
 '''
 import os
 import sys
-if sys.version_info.major == 2:
+if sys.version_info < (3, 0):
     from cStringIO import StringIO
 else:
     from io import BytesIO as StringIO

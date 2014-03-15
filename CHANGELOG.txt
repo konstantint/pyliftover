@@ -1,7 +1,7 @@
 Version 0.3
 -----------
 
-    - Python 3 compatibility
+    - Python 2.6 & Python 3 compatibility. Added Travis-CI.
 
 Version 0.2
 -----------

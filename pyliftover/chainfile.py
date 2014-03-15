@@ -16,9 +16,9 @@ import sys
 
 from .intervaltree import IntervalTree
 
-if sys.version_info.major > 2:
+if sys.version_info >= (3, 0):
     import urllib.request
-FancyURLopener = urllib.FancyURLopener if sys.version_info.major == 2 else urllib.request.FancyURLopener
+FancyURLopener = urllib.FancyURLopener if sys.version_info < (3, 0) else urllib.request.FancyURLopener
 
 class ErrorAwareURLOpener(FancyURLopener):
   def http_error_default(self, url, fp, errcode, errmsg, headers):
@@ -183,7 +183,7 @@ class LiftOverChain:
         Reads the chain from a stream given the first line and a file opened at all remaining lines.
         On error throws an exception.
         '''
-        if sys.version_info.major > 2:
+        if sys.version_info >= (3, 0):
             header = header.decode('ascii') # In Python 2, work with usual strings.
         fields = header.split()
         if fields[0] != 'chain' and len(fields) not in [12, 13]:

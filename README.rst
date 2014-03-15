@@ -2,6 +2,8 @@
 Pure-python implementation of UCSC ``liftOver`` genome coordinate conversion
 ============================================================================
 
+.. image:: https://travis-ci.org/konstantint/pyliftover.png?branch=master   :target: https://travis-ci.org/konstantint/pyliftover
+
 PyLiftover is a library for quick and easy conversion of genomic (point) coordinates between different assemblies.
 
 It uses the same logic and coordinate conversion mappings as the UCSC `liftOver tool <http://genome.ucsc.edu/cgi-bin/hgLiftOver>`_.
