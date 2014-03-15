@@ -6,7 +6,7 @@ PyLiftover is a library for quick and easy conversion of genomic (point) coordin
 
 It uses the same logic and coordinate conversion mappings as the UCSC `liftOver tool <http://genome.ucsc.edu/cgi-bin/hgLiftOver>`_.
 
-As of current version (0.1), PyLiftover only does conversion of point coordinates, that is, 
+As of current version (0.2), PyLiftover only does conversion of point coordinates, that is, 
 unlike ``liftOver``, it does not convert ranges, nor does it provide any special facilities to work with BED files.
 For single-point coordinates it produces exactly the same output as ``liftOver`` (verified with at least the ``hg17ToHg18.over.chain.gz`` file for now).
 
