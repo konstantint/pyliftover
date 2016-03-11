@@ -68,3 +68,25 @@ def test_liftover_2():
     assert len(lo.chain_file.chain_index) > 22
     lo = LiftOver(gzip.open(os.path.join(DATA_DIR, 'hg17ToHg18.over.chain.gz')))
     assert len(lo.chain_file.chain_index) > 22
+
+
+def test_issue_2_3_4():
+    '''
+    Check the correctness of coordinate conversion for issue 2/3/4.
+    
+    NB: We are using the "live" hg38ToHg19.over.chain.gz file, hence if it happens to change later on,
+    the test may start failing. Just in case we have the original cached in the data directory as well.
+    '''
+    lo = LiftOver('hg38', 'hg19')
+    test_input = os.path.join(DATA_DIR, 'hg38ToHg19.testinput.txt')
+    test_output = os.path.join(DATA_DIR, 'hg38ToHg19.testoutput.txt')
+    
+    test_input = {ln[3]: (ln[0], int(ln[1]), ln[5].strip()) for ln in [line.split() for line in open(test_input)]}
+    test_output = {ln[3]: (ln[0], int(ln[1]), ln[5].strip()) for ln in [line.split() for line in open(test_output)]}
+    
+    for k in test_input:
+        res = lo.convert_coordinate(*test_input[k])
+        if k not in test_output:
+            assert len(res) == 0
+        else:
+            assert len(res) == 1 and res[0][0:3] == test_output[k]
