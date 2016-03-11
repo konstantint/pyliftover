@@ -81,8 +81,8 @@ def test_issue_2_3_4():
     test_input = os.path.join(DATA_DIR, 'hg38ToHg19.testinput.txt')
     test_output = os.path.join(DATA_DIR, 'hg38ToHg19.testoutput.txt')
     
-    test_input = {ln[3]: (ln[0], int(ln[1]), ln[5].strip()) for ln in [line.split() for line in open(test_input)]}
-    test_output = {ln[3]: (ln[0], int(ln[1]), ln[5].strip()) for ln in [line.split() for line in open(test_output)]}
+    test_input = dict([(ln[3], (ln[0], int(ln[1]), ln[5].strip())) for ln in [line.split() for line in open(test_input)]])
+    test_output = dict([(ln[3], (ln[0], int(ln[1]), ln[5].strip())) for ln in [line.split() for line in open(test_output)]])
     
     for k in test_input:
         res = lo.convert_coordinate(*test_input[k])
