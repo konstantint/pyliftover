@@ -13,7 +13,7 @@ import gzip
 from .chainfile import open_liftover_chain_file, LiftOverChainFile
 
 class LiftOver:
-    def __init__(self, from_db, to_db=None, search_dir='.', cache_dir=os.path.expanduser("~/.pyliftover"), use_web=True, write_cache=True, use_gzip=None):
+    def __init__(self, from_db, to_db=None, search_dir='.', cache_dir=os.path.expanduser("~/.pyliftover"), use_web=True, write_cache=True, use_gzip=None, show_progress=False):
         '''
         LiftOver can be initialized in multiple ways.
          * By providing a filename as a single argument: LiftOver("hg17ToHg18.over.chain.gz")
@@ -25,7 +25,8 @@ class LiftOver:
            The file will be searched in local directory, cache directory, or even downloaded from the web, if possible.
            The exact way this is handled (as well as all the other parameters of the constructor) is documented in 
            :see:`pyliftover.chainfile.open_liftover_chain_file`.
-
+        If show_progress == True, a progress bar will be shown in the console. This requires tqdm to be installed (not installed automatically with the package).
+        
         Test providing filename:
         >>> lo = LiftOver('tests/data/mds42.to.mg1655.liftOver')
         >>> lo.convert_coordinate('AP012306.1', 16000) #doctest: +ELLIPSIS (because on 32-bit systems there's an L qualifier after the number and on 64-bit ones there's nothing.
@@ -59,7 +60,7 @@ class LiftOver:
         else:
             # From- and To- db names were provided.
             f = open_liftover_chain_file(from_db=from_db, to_db=to_db, search_dir=search_dir, cache_dir=cache_dir, use_web=use_web, write_cache=write_cache)
-        self.chain_file = LiftOverChainFile(f)
+        self.chain_file = LiftOverChainFile(f, show_progress=show_progress)
         f.close()
         
     def convert_coordinate(self, chromosome, position, strand='+'):
@@ -83,7 +84,7 @@ class LiftOver:
             # query_results contains intervals which contain the query point. We simply have to remap to corresponding targets.
             results = []
             for (source_start, source_end, data) in query_results:
-                target_start, target_end, chain = data
+                target_start, chain = data
                 result_position = target_start + (position - source_start)
                 if chain.target_strand == '-':
                     result_position = chain.target_size - 1 - result_position

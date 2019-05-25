@@ -26,14 +26,13 @@ class PyTest(TestCommand):
         import pytest  # import here, cause outside the eggs aren't loaded
         sys.exit(pytest.main(self.test_args))
 
-version = '0.3'
 
 setup(name='pyliftover',
-      version=version,
+      version=[ln for ln in open("pyliftover/__init__.py") if ln.startswith("__version__")][0].split('"')[1],
       description="Pure-python implementation of UCSC ``liftOver`` genome coordinate conversion.",
       long_description=open("README.rst").read(),
       classifiers=[  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-          'Development Status :: 3 - Alpha',
+          'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Science/Research',
           'License :: OSI Approved :: MIT License',
           'Operating System :: OS Independent',

@@ -37,7 +37,9 @@ class IntervalTree:
     >>> t.query(27)
     []
     '''
-    
+    __slots__ = ['min', 'max', 'center', 'single_interval', 'left_subtree', 'right_subtree', 
+                 'mid_sorted_by_start', 'mid_sorted_by_end']
+
     def __init__(self, min, max):
         '''
         Creates a tree node for keeping intervals somewhere in the range [min...max).

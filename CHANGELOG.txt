@@ -1,14 +1,10 @@
-Version 0.3
------------
+Changelog
+---------
 
-    - Python 2.6 & Python 3 compatibility. Added Travis-CI.
-
-Version 0.2
------------
-
-    - Fixed a bug (issue #1)
-    
-Version 0.1
------------
-
-    - Initial version, basic single-point coordinate conversion.
+	- (0.4)
+        - Fixes #7 (removed deprecation warning)
+        - Addresses #9 (better memory consumption)
+        - Added "show_progress" parameter to LiftOver (prints a tqdm progress bar, requires a separate `pip install tqdm`)
+    - (0.3) Python 2.6 & Python 3 compatibility. Added Travis-CI.
+    - (0.2) Fixes issue #1
+    - (0.1) Initial version, basic single-point coordinate conversion.

@@ -29,5 +29,6 @@ have multiple elements (although this is probably a rare occasion for most defau
 Although you may try to apply the tool with arbitrary chain files, like the original ``liftOver`` tool, it makes most sense for conversion of 
 coordinates between different assemblies of the same species.
 '''
+__version__ = "0.4"
 
 from .liftover import LiftOver

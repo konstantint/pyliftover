@@ -18,12 +18,18 @@ from .intervaltree import IntervalTree
 
 if sys.version_info >= (3, 0):
     import urllib.request
-FancyURLopener = urllib.FancyURLopener if sys.version_info < (3, 0) else urllib.request.FancyURLopener
 
-class ErrorAwareURLOpener(FancyURLopener):
-  def http_error_default(self, url, fp, errcode, errmsg, headers):
-    raise Exception("404")
-_urlopener = ErrorAwareURLOpener()
+if sys.version_info < (3, 3):
+    FancyURLopener = urllib.FancyURLopener if sys.version_info < (3, 0) else urllib.request.FancyURLopener
+
+    class ErrorAwareURLOpener(FancyURLopener):
+      def http_error_default(self, url, fp, errcode, errmsg, headers):
+        raise Exception("404")
+
+    _urlopener = ErrorAwareURLOpener()
+    urlretrieve = _urlopener.retrieve
+else:
+    urlretrieve = urllib.request.urlretrieve
 
 def open_liftover_chain_file(from_db, to_db, search_dir='.', cache_dir=os.path.expanduser("~/.pyliftover"), use_web=True, write_cache=True):
     '''
@@ -64,7 +70,7 @@ def open_liftover_chain_file(from_db, to_db, search_dir='.', cache_dir=os.path.e
         # Download file from the web.
         try:
             url = 'http://hgdownload.cse.ucsc.edu/goldenPath/%s/liftOver/%sTo%s.over.chain.gz' % (from_db, from_db, to_db)
-            (filename, headers) = _urlopener.retrieve(url)
+            (filename, headers) = urlretrieve(url)
         except:
             # Download failed, exit
             return None
@@ -93,21 +99,27 @@ class LiftOverChainFile:
     Specification of the chain format can be found here: http://genome.ucsc.edu/goldenPath/help/chain.html
     '''
     
-    def __init__(self, f):
+    def __init__(self, f, show_progress=False):
         '''
         Reads chain data from the file and initializes an interval index.
         f must be a file object open for reading.
         If any errors are detected, an Exception is thrown.
+        
+        If show_progress == True, a progress bar is shown in the console.
+        Requires tqdm to be installed.
         '''
-        self.chains = self._load_chains(f)
-        self.chain_index = self._index_chains(self.chains)
+        self.chains = self._load_chains(f, show_progress)
+        self.chain_index = self._index_chains(self.chains, show_progress)
         
     @staticmethod
-    def _load_chains(f):
+    def _load_chains(f, show_progress=False):
         '''
         Loads all LiftOverChain objects from a file into an array. Returns the result.
         '''
         chains = []
+        if show_progress:
+            from tqdm import tqdm
+            pbar = tqdm(total = float('inf'), desc="Reading file", unit=" chains")
         while True:
             line = f.readline()
             if not line:
@@ -117,11 +129,13 @@ class LiftOverChainFile:
             if line.startswith(b'chain'):
                 # Read chain
                 chains.append(LiftOverChain(line, f))
+                if show_progress:
+                    pbar.update(1)
                 continue
         return chains
 
     @staticmethod
-    def _index_chains(chains):
+    def _index_chains(chains, show_progress=False):
         '''
         Given a list of LiftOverChain objects, creates a
          dict: source_name --> 
@@ -133,6 +147,9 @@ class LiftOverChainFile:
         chain_index = {}
         source_size = {}
         target_size = {}
+        if show_progress:
+            from tqdm import tqdm
+            chains = tqdm(chains, desc="Indexing", unit=" chains")
         for c in chains:
             # Verify that sizes of chromosomes are consistent over all chains
             source_size.setdefault(c.source_name, c.source_size)
@@ -144,8 +161,8 @@ class LiftOverChainFile:
             chain_index.setdefault(c.source_name, IntervalTree(0, c.source_size))
             # Register all blocks from the chain in the corresponding interval tree
             tree = chain_index[c.source_name]
-            for (sfrom, sto, tfrom, tto) in c.blocks:
-                tree.add_interval(sfrom, sto, (tfrom, tto, c))
+            for (sfrom, sto, tfrom) in c.blocks:
+                tree.add_interval(sfrom, sto, (tfrom, c))
 
         # Sort all interval trees
         for k in chain_index:
@@ -178,6 +195,9 @@ class LiftOverChain:
     The "source" and "target" are somehow referred to in the specs (http://genome.ucsc.edu/goldenPath/help/chain.html)
     as "target" and "query" respectively.
     '''
+    __slots__ = ['score', 'source_name', 'source_size', 'source_start', 'source_end',
+	             'target_name', 'target_size', 'target_strand', 'target_start', 'target_end', 'id', 'blocks']
+
     def __init__(self, header, f):
         '''
         Reads the chain from a stream given the first line and a file opened at all remaining lines.
@@ -192,8 +212,8 @@ class LiftOverChain:
         self.score = int(fields[1])        # Alignment score
         self.source_name = fields[2]       # E.g. chrY
         self.source_size = int(fields[3])  # Full length of the chromosome
-        self.source_strand = fields[4]     # Must be +
-        if self.source_strand != '+':
+        source_strand = fields[4]          # Must be +
+        if source_strand != '+':
             raise Exception("Source strand in an .over.chain file must be +. (%s)" % header)
         self.source_start = int(fields[5]) # Start of source region
         self.source_end = int(fields[6])   # End of source region
@@ -212,13 +232,13 @@ class LiftOverChain:
         fields = f.readline().decode('ascii').split()
         while len(fields) == 3:
             size, sgap, tgap = int(fields[0]), int(fields[1]), int(fields[2])
-            self.blocks.append((sfrom, sfrom+size, tfrom, tfrom+size))
+            self.blocks.append((sfrom, sfrom+size, tfrom))
             sfrom += size + sgap
             tfrom += size + tgap
             fields = f.readline().split()
         if len(fields) != 1:
             raise Exception("Expecting one number on the last line of alignments block. (%s)" % header)
         size = int(fields[0])
-        self.blocks.append((sfrom, sfrom+size, tfrom, tfrom+size))
+        self.blocks.append((sfrom, sfrom+size, tfrom))
         if (sfrom + size) != self.source_end  or (tfrom + size) != self.target_end:
             raise Exception("Alignment blocks do not match specified block sizes. (%s)" % header)

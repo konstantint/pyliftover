@@ -49,19 +49,19 @@ def test_liftover_chain():
     This is just a smoke test.
     '''
     chain = load_chain(example_1)
-    assert (chain.score, chain.source_name, chain.source_size, chain.source_strand, chain.source_start, chain.source_end, 
+    assert (chain.score, chain.source_name, chain.source_size, chain.source_start, chain.source_end, 
                          chain.target_name, chain.target_size, chain.target_strand, chain.target_start, chain.target_end, 
-            chain.id) == (4900, 'chrY', 58368225, '+', 25985403, 25985638, 'chr5', 151006098, '-', 43257292, 43257528, '1')
-    assert chain.blocks[0] == (25985403, 25985403+9, 43257292, 43257292+9)
-    assert chain.blocks[1] == (25985403+9+1, 25985403+9+1+10, 43257292+9+0, 43257292+9+0+10)
+            chain.id) == (4900, 'chrY', 58368225, 25985403, 25985638, 'chr5', 151006098, '-', 43257292, 43257528, '1')
+    assert chain.blocks[0] == (25985403, 25985403+9, 43257292)
+    assert chain.blocks[1] == (25985403+9+1, 25985403+9+1+10, 43257292+9+0)
     assert len(chain.blocks) == 9
     
     chain = load_chain(example_2)
-    assert (chain.score, chain.source_name, chain.source_size, chain.source_strand, chain.source_start, chain.source_end, 
+    assert (chain.score, chain.source_name, chain.source_size, chain.source_start, chain.source_end, 
                          chain.target_name, chain.target_size, chain.target_strand, chain.target_start, chain.target_end, 
-            chain.id) == (4900, 'chrY', 58368225, '+', 25985406, 25985566, 'chr5', 151006098, '-', 43549808, 43549970, '2')
-    assert chain.blocks[0] == (25985406, 25985406+16, 43549808, 43549808+16)
-    assert chain.blocks[1] == (25985406+16, 25985406+16+60, 43549808+16+2, 43549808+16+2+60)
+            chain.id) == (4900, 'chrY', 58368225, 25985406, 25985566, 'chr5', 151006098, '-', 43549808, 43549970, '2')
+    assert chain.blocks[0] == (25985406, 25985406+16, 43549808)
+    assert chain.blocks[1] == (25985406+16, 25985406+16+60, 43549808+16+2)
     assert len(chain.blocks) == 4
 
 def test_liftover_chain_file():
@@ -79,13 +79,13 @@ def test_liftover_chain_file():
     assert len(index['chrY'].query(25985403)) == 1
     assert len(index['chrY'].query(25985402)) == 0
     assert len(index['chrY'].query(25985405)) == 1
-    assert index['chrY'].query(25985405)[0][2][2] == chains[0]
+    assert index['chrY'].query(25985405)[0][2][-1] == chains[0]
     cf = LiftOverChainFile(StringIO(data))
     assert len(cf.query('chrY', 25985406)) == 2
     assert len(cf.query('chrY', 25985403)) == 1
     assert len(cf.query('chrY', 25985402)) == 0
     assert len(cf.query('chrY', 25985405)) == 1
-    assert cf.query('chrY', 25985405)[0][2][2] == cf.chains[0]
+    assert cf.query('chrY', 25985405)[0][2][-1] == cf.chains[0]
     assert cf.query('chrZ', 25985405) is None
     
     # hg17-to-hg18 example
