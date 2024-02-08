@@ -1,6 +1,8 @@
 Changelog
 ---------
 
+    - (0.4.1)
+        - Updated UCSC URL to https://hgdownload2.soe.ucsc.edu/ (PR#18). 
 	- (0.4)
         - Fixes #7 (removed deprecation warning)
         - Addresses #9 (better memory consumption)
