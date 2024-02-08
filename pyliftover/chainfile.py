@@ -69,7 +69,7 @@ def open_liftover_chain_file(from_db, to_db, search_dir='.', cache_dir=os.path.e
     if use_web:
         # Download file from the web.
         try:
-            url = 'http://hgdownload.cse.ucsc.edu/goldenPath/%s/liftOver/%sTo%s.over.chain.gz' % (from_db, from_db, to_db)
+            url = 'http://hgdownload2.cse.ucsc.edu/goldenPath/%s/liftOver/%sTo%s.over.chain.gz' % (from_db, from_db, to_db)
             (filename, headers) = urlretrieve(url)
         except:
             # Download failed, exit
